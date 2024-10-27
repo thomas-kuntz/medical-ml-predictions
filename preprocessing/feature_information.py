@@ -21,9 +21,9 @@ feature_info = {
 'MEDCOST': dict(kind='T', unique=[1, 2, 7, 9, np.nan]),
 'CHECKUP1': dict(kind='OT', ordinal_unique=[1, 2, 3, 4], others=[7, 8, 9, np.nan]),
 'BPHIGH4': dict(kind='T', unique=[1, 2, 3, 4, 7, 9, np.nan]),
+'BLOODCHO': dict(),
 }
 """
-'BLOODCHO',
 'CVDSTRK3',
 'ASTHMA3',
 'CHCSCNCR',
@@ -35,6 +35,8 @@ feature_info = {
 'DIABETE3',
 'SEX',
 'MARITAL',
+
+
 'EDUCA',
 'RENTHOM1',
 'VETERAN3',
@@ -52,6 +54,8 @@ feature_info = {
 'DIFFDRES',
 'QSTVER',
 'QSTLANG',
+
+
 '_STSTR',
 '_STRWT',
 '_RAWRAKE',
@@ -117,3 +121,10 @@ feature_info = {
 '_RFSEAT3'
 }
 """
+
+irrelevant_features = [
+    'LANDLINE',
+    'NUMHHOL2',
+    'CPDEMO1',
+    'INTERNET'
+]
