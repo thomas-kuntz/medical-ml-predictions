@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def loss_mse(y, tx, w):
     """Calculate the loss using the MSE cost function.
 
@@ -96,4 +97,26 @@ def gradient_logistic(y, tx, w):
            [ 0.2067104 ],
            [ 0.51712843]])
     """
-    return (1/len(tx)) * tx.T @ (sigmoid(tx @ w) - y)
+    return (1 / len(tx)) * tx.T @ (sigmoid(tx @ w) - y)
+
+
+def compute_f1_score(y, preds, threshold=0.5):
+    """
+    todo proper doc
+
+    """
+    preds = (preds >= threshold).astype(int)
+
+    TP = np.sum((y == 1) & (preds == 1))
+    FP = np.sum((y == 0) & (preds == 1))
+    FN = np.sum((y == 1) & (preds == 0))
+
+    precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+    recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+
+    f1 = (
+        (2 * precision * recall) / (precision + recall)
+        if (precision + recall) > 0
+        else 0
+    )
+    return f1
