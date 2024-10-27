@@ -30,14 +30,15 @@ def gradient_mse(y, tx, w):
     e = y - tx @ w
     return -(1 / len(y)) * tx.T @ e
 
+
 def sigmoid(t):
     """apply sigmoid function on t.
 
     Args:
-        t: scalar 
+        t: scalar
 
     Returns:
-        image: scalar corresponding to sigmoid(t) 
+        image: scalar corresponding to sigmoid(t)
 
     >>> sigmoid(np.array([0.1]))
     array([0.52497919])
@@ -46,8 +47,12 @@ def sigmoid(t):
     """
     return np.exp(t) / (1 + np.exp(t))
 
+
 def loss_logistic(y, tx, w):
     """compute the cost by negative log likelihood.
+    Assuming y values in {0, 1}. Our data has y values in {-1, 1} but the
+    tests assume {0, 1}, so we transform our data to {0, 1} and then back
+    to {-1, 1} when training the model and making predictions
 
     Args:
         y: numpy array of shape (N,), N is the number of samples.
@@ -63,13 +68,13 @@ def loss_logistic(y, tx, w):
     >>> round(loss_logistic(y, tx, w), 8)
     1.52429481
     """
-    assert y.shape[0] == tx.shape[0] #todo useful ?
+    assert y.shape[0] == tx.shape[0]  # todo useful ?
     assert tx.shape[1] == w.shape[0]
 
-    loss_vector = np.log(1 + np.exp(-np.multiply(y, tx @ w)))
-    loss = loss_vector.sum()/len(loss_vector)
-    
-    return loss
+    # Using the formula from lab05 of the negative log likelihood loss
+    sigm = sigmoid(tx @ w)
+    return -1 * np.mean(y * np.log(sigm) + (1 - y) * np.log(1 - sigm))
+
 
 def gradient_logistic(y, tx, w):
     """compute the gradient of the logistic loss.
