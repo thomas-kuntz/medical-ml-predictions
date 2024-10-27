@@ -111,7 +111,7 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         data_size / batch_size
     )  # The maximum amount of non-overlapping batches that can be extracted from the data.
     remainder = (
-            data_size - max_batches * batch_size
+        data_size - max_batches * batch_size
     )  # Points that would be excluded if no overlap is allowed.
 
     if shuffle:
@@ -127,6 +127,6 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     for start in idxs:
         start_index = start  # The first data point of the batch
         end_index = (
-                start_index + batch_size
+            start_index + batch_size
         )  # The first data point of the following batch
         yield y[start_index:end_index], tx[start_index:end_index]
