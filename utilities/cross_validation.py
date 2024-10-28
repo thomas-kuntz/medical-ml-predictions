@@ -77,7 +77,7 @@ def cross_validation_reg_logistic_regression(y, x, lambdas, initial_w, max_its, 
     best_hps = dict(lambda_=None, max_it=None, gamma=None)
 
     # Keep track of all losses
-    losses = [[[None for _ in gammas] for _ in max_its] for _ in lambdas]
+    losses = [[[None for _ in max_its] for _ in gammas] for _ in lambdas]
     losses_per_hp = dict(
         lambda_={l: [] for l in lambdas},
         max_it={m: [] for m in max_its},
@@ -86,8 +86,8 @@ def cross_validation_reg_logistic_regression(y, x, lambdas, initial_w, max_its, 
 
     # Consider each combination of hyperparameters
     for ilambda_, lambda_ in enumerate(lambdas):
-        for imax_it, max_it in enumerate(max_its):
-            for igamma, gamma in enumerate(gammas):
+        for igamma, gamma in enumerate(gammas):
+            for imax_it, max_it in enumerate(max_its):
                 if verbose:
                     print(f"\nComputing cross validation for lambda={lambda_}\tmax_it={max_it}\tgamma={gamma}")
 
@@ -106,7 +106,7 @@ def cross_validation_reg_logistic_regression(y, x, lambdas, initial_w, max_its, 
                     best_loss = loss
                     best_hps = dict(lambda_=lambda_, max_it=max_it, gamma=gamma)
 
-                loss[ilambda_][imax_it][igamma] = loss
+                losses[ilambda_][igamma][imax_it] = loss
                 losses_per_hp['lambda_'][lambda_] += [loss]
                 losses_per_hp['max_it'][max_it] += [loss]
                 losses_per_hp['gamma'][gamma] += [loss]
