@@ -1,37 +1,5 @@
 import numpy as np
 
-
-def loss_mse(y, tx, w):
-    """Calculate the loss using the MSE cost function.
-
-    Args:
-        y: numpy array of shape (N,), N is the number of samples.
-        tx: numpy array of shape (N,D), D is the number of features.
-        w: numpy array of shape=(D,). The vector of model parameters.
-
-    Returns:
-        loss: a scalar corresponding to the MSE loss.
-    """
-    e = y - tx @ w
-    return 1 / (2 * len(y)) * e.T @ e
-
-
-def gradient_mse(y, tx, w):
-    """
-    Computes the gradient at w.
-
-    Args:
-        y: numpy array of shape (N,), N is the number of samples.
-        tx: numpy array of shape (N,D), D is the number of features.
-        w: numpy array of shape=(D,). The vector of model parameters.
-
-    Returns:
-        gradient: An numpy array of shape (D, ) containing the gradient of the mse loss at w.
-    """
-    e = y - tx @ w
-    return -(1 / len(y)) * tx.T @ e
-
-
 def sigmoid(t):
     """apply sigmoid function on t.
 
@@ -48,6 +16,27 @@ def sigmoid(t):
     """
     return np.exp(t) / (1 + np.exp(t))
 
+def gradient_logistic(y, tx, w):
+    """compute the gradient of the logistic loss.
+
+    Args:
+        y: numpy array of shape (N,), N is the number of samples.
+        tx: numpy array of shape (N,D), D is the number of features.
+        w: numpy array of shape=(D,). The vector of model parameters.
+
+    Returns:
+        gradient: An numpy array of shape (D, ) containing the gradient of the logistic loss at w.
+
+    >>> np.set_printoptions(8)
+    >>> y = np.c_[[0., 1.]]
+    >>> tx = np.arange(6).reshape(2, 3)
+    >>> w = np.array([[0.1], [0.2], [0.3]])
+    >>> gradient_logistic(y, tx, w)
+    array([[-0.10370763],
+           [ 0.2067104 ],
+           [ 0.51712843]])
+    """
+    return (1 / len(tx)) * tx.T @ (sigmoid(tx @ w) - y)
 
 def loss_logistic(y, tx, w):
     """compute the cost by negative log likelihood.
@@ -75,30 +64,6 @@ def loss_logistic(y, tx, w):
     # Using the formula from lab05 of the negative log likelihood loss
     sigm = sigmoid(tx @ w)
     return -1 * np.mean(y * np.log(sigm) + (1 - y) * np.log(1 - sigm))
-
-
-def gradient_logistic(y, tx, w):
-    """compute the gradient of the logistic loss.
-
-    Args:
-        y: numpy array of shape (N,), N is the number of samples.
-        tx: numpy array of shape (N,D), D is the number of features.
-        w: numpy array of shape=(D,). The vector of model parameters.
-
-    Returns:
-        gradient: An numpy array of shape (D, ) containing the gradient of the logistic loss at w.
-
-    >>> np.set_printoptions(8)
-    >>> y = np.c_[[0., 1.]]
-    >>> tx = np.arange(6).reshape(2, 3)
-    >>> w = np.array([[0.1], [0.2], [0.3]])
-    >>> gradient_logistic(y, tx, w)
-    array([[-0.10370763],
-           [ 0.2067104 ],
-           [ 0.51712843]])
-    """
-    return (1 / len(tx)) * tx.T @ (sigmoid(tx @ w) - y)
-
 
 def compute_f1_score(y, preds, threshold=0.5):
     """

@@ -1,7 +1,7 @@
 import numpy as np
 from helpers import batch_iter
-from utilities import loss_mse, gradient_mse
-from utilities import gradient_logistic, loss_logistic
+from utilities.linear_regression import loss_mse, gradient_mse
+from utilities.logistic_regression import gradient_logistic, loss_logistic
 
 
 def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
