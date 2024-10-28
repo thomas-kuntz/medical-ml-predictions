@@ -13,7 +13,7 @@ conditions, and use of preventive services.
 
 You will need `numpy` and `jupyter` to run the file, and besides Python’s standard library, there should be nothing else required.
 
-Run the `run.ipynb` file to reproduce our results. This includes data cleaning, feature transformation, feature selection, model training, hyperparameter selection, cross-validation, and generation of the predictions on the test set. 
+The dataset files should be placed in a folder called `dataset` next to the `run.ipynb` file. Run the `run.ipynb` file to reproduce our results. This includes data cleaning, feature transformation, feature selection, model training, hyperparameter selection, cross-validation, and generation of the predictions on the test set.
 
 ## Authors
 
@@ -22,4 +22,3 @@ Team Turing:
 - Léo Paoletti
 - Thomas Kuntz
 - Gabriel Alejandro Jiménez Calles
-
