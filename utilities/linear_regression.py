@@ -1,4 +1,4 @@
-import numpy as np
+from utilities.logistic_regression import compute_f1_score
 
 def gradient_mse(y, tx, w):
     """
@@ -28,3 +28,11 @@ def loss_mse(y, tx, w):
     """
     e = y - tx @ w
     return 1 / (2 * len(y)) * e.T @ e
+
+def compute_score_linear(y, x, w):
+    preds = (x @ w > 0.5).astype(int)
+    f1 = compute_f1_score(y, preds)
+    accuracy = (preds == y).mean()
+    loss = loss_mse(y, x, w)
+    return dict(f1=f1, accuracy=accuracy, loss=loss)
+

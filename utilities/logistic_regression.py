@@ -85,3 +85,11 @@ def compute_f1_score(y, preds, threshold=0.5):
         else 0
     )
     return f1
+
+def compute_score_logistic(y, x, w):
+    # TODO document properly
+    preds = np.round(sigmoid(x @ w))
+    f1 = compute_f1_score(y, preds)
+    accuracy = (preds == y).mean()
+    loss = loss_logistic(y, x, w)
+    return dict(f1=f1, accuracy=accuracy, loss=loss)
