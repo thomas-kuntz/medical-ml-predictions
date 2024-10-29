@@ -106,7 +106,7 @@ def cross_validation(y, x, kind, k_indices, fold_nums, verbose=False, **kwargs):
     if kind not in ['logistic', 'linear', 'least_squares']:
         raise ValueError("Invalid kind, must be one of 'logistic', 'linear', or 'least_squares'.")
     if verbose:
-        print("\nCross validating for {:20s}.\t".format(kind) + "\t".join([f"{k}={v}" for k, v in kwargs.items()]))
+        print("\nCross validating for {:20s}.\t".format(kind) + "\t".join([f"{k}={v}" for k, v in kwargs.items() if k not in ['initial_w', 'max_its']]))
     if kind == 'least_squares':
         max_its = [0]
     else:
@@ -272,68 +272,18 @@ def cross_validation_for_parameter_selection(y, x, kind, fold_nums, verbose=Fals
 
     return best_f1, best_hps, all_scores
 
-def cross_validation_reg_logistic_regression(y, x, lambdas, initial_w, max_its, gammas, fold_nums, verbose=False):
-    """Perform cross validation for regularized logistic regression.
-    Args:
-        y:          shape=(N,)
-        x:          shape=(N,D)
-        lambdas:    list of values of lambda to cross-validate
-        initial_w:  shape=(D,) initial weights
-        max_its:    list of values of max_iters to cross-validate
-        gammas:     list of values of gamma to cross-validate
-        fold_nums:  int, number of folds to perform
-        verbose:    bool, whether to print progress reports or not 
+def cross_validation_for_model_selection(y, x, fold_nums, models, verbose=False):
+    # TODO proper docs
+    scores_by_model = {}
+    overall_best_f1 = 0
+    best_model = None
+    for model in models:
+        if verbose:
+            print(f"Performing cross validation for {model['name']}")
+        best_f1, best_hps, all_scores = cross_validation_for_parameter_selection(y, x, kind=model['kind'], fold_nums=fold_nums, verbose=verbose, **model['parameters'])
+        scores_by_model[model['name']] = (best_f1, best_hps, all_scores)
 
-
-    Returns:
-        train and test losses
-    """
-    k_indices = build_k_indices(y, fold_nums)
-
-    # Keep track of the best f1 score and the best hyperparameters for f1 score
-    best_f1 = 0
-    best_hps = dict(lambda_=None, max_it=None, gamma=None)
-
-    # Keep track of all scores
-    all_scores = [[None for _ in gammas] for _ in lambdas]
-
-    # Consider each combination of hyperparameters
-    for ilambda_, lambda_ in enumerate(lambdas):
-        for igamma, gamma in enumerate(gammas):
-            if verbose:
-                print(f"\nComputing cross validation for\tlambda={lambda_}\tgamma={gamma}")
-
-            # Compute the sum of the scores across the k folds
-            scores = dict(
-                f1=[0 for _ in max_its],
-                accuracy=[0 for _ in max_its],
-                loss=[0 for _ in max_its]
-            )
-            for k in range(fold_nums):
-                if verbose:
-                    print(f"k={k}", end="\t")
-                # scores_te here is a dictionary of lists
-                # keys are the name of the score (f1, accuracy, etc)
-                # values are a list of the values said score takes during training (polled at each value of max_its)
-                losses_tr, scores_te = k_th_cross_validation(
-                    y, x, k_indices, k, kind='logistic', lambda_=lambda_, initial_w=initial_w, max_its=max_its, gamma=gamma
-                )
-                for score_name in scores.keys():
-                    scores[score_name] = [agg + v for agg, v in zip(scores[score_name], scores_te[score_name])]
-            # Average each score across the k folds
-            for score_name in scores.keys():
-                scores[score_name] = [val / fold_nums for val in scores[score_name]]
-            # We want to avoid models that overfit, so, as a simple heuristic, we will take the last f1 score
-            local_f1_score = scores['f1'][-1]
-            if verbose:
-                print("\n\tF1 score after {} iterations: {:.6f}".format(max_its[-1], local_f1_score))
-
-            # Keep track of the best f1 score
-            if local_f1_score > best_f1:
-                best_f1 = local_f1_score
-                best_hps = dict(lambda_=lambda_, gamma=gamma)
-
-            # Keep track of all scores for each value of each hyperparameter
-            all_scores[ilambda_][igamma] = scores
-
-    return best_f1, best_hps, all_scores
+        if best_f1 > overall_best_f1:
+            overall_best_f1 = best_f1
+            best_model = model['name']
+    return overall_best_f1, best_model, scores_by_model
