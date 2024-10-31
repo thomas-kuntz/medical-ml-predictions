@@ -1,4 +1,5 @@
 import numpy as np
+from helpers import batch_iter
 
 def sigmoid(t):
     """apply sigmoid function on t.
@@ -65,12 +66,15 @@ def loss_logistic(y, tx, w):
     sigm = sigmoid(tx @ w)
     return -1 * np.mean(y * np.log(sigm) + (1 - y) * np.log(1 - sigm))
 
-def compute_f1_score(y, preds, threshold=0.5):
-    """
-    todo proper doc
+def compute_f1_score(y, preds):
+    """Computes the f1 score for the given labels and predictions
+    Args:
+        y:      shape=(N,) the correct labels in {0, 1}
+        preds:  shape=(N,) the predicted labels in {0, 1}
 
+    Returns:
+        f1:     scalar in [0; 1], the f1 score
     """
-    preds = (preds >= threshold).astype(int)
 
     TP = np.sum((y == 1) & (preds == 1))
     FP = np.sum((y == 0) & (preds == 1))
@@ -87,9 +91,43 @@ def compute_f1_score(y, preds, threshold=0.5):
     return f1
 
 def compute_score_logistic(y, x, w):
-    # TODO document properly
+    """Compute test scores in the context of logistic regression
+    Args:
+        y:      shape=(N,) the correct labels
+        x:      shape=(N, D) the model inputs
+        w:      shape=(D,) the optimal weights found through logistic regression
+    
+    Returns:
+        scores: dict, keys are score names (f1, accuracy, loss), values are the values of said scores 
+    """
     preds = np.round(sigmoid(x @ w))
     f1 = compute_f1_score(y, preds)
     accuracy = (preds == y).mean()
     loss = loss_logistic(y, x, w)
-    return dict(f1=f1, accuracy=accuracy, loss=loss)
+    scores = dict(f1=f1, accuracy=accuracy, loss=loss) 
+    return scores
+
+
+def logistic_regression_sgd(y, tx, initial_w, max_iters, gamma, balanced=False, batch_size=64):
+    """
+    Logistic regression using stochastic gradient descent (y ∈ {0, 1})
+    Args:
+        y: numpy array of shape (N,), N is the number of samples.
+        tx: numpy array of shape (N,D), D is the number of features.
+        initial_w: numpy array of shape (D,). The initial guess (or the initialization) for the model parameters
+        max_iters: a scalar denoting the total number of iterations of GD
+        gamma: a scalar denoting the stepsize
+
+    Returns:
+        w: numpy array of shape (D, ), optimal weight vector at the end of GD.
+        loss: a scalar denoting the logistic loss value with the optimal weight vector w.
+    """
+    N, D = tx.shape
+    w = initial_w
+    for _ in range(max_iters):
+        idxs = np.random.randint(low=0, high=N+1, size=batch_size)
+        for minibatch_y, minibatch_tx in batch_iter(
+            y, tx, batch_size=batch_size, num_batches=1, shuffle=True
+        ):
+            w = w - gamma * gradient_logistic(minibatch_y, minibatch_tx, w)
+    return w, loss_logistic(y, tx, w)

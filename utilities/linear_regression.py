@@ -29,8 +29,17 @@ def loss_mse(y, tx, w):
     e = y - tx @ w
     return 1 / (2 * len(y)) * e.T @ e
 
-def compute_score_linear(y, x, w):
-    preds = (x @ w > 0.5).astype(int)
+def compute_score_linear(y, x, w, treshold=0.5):
+    """Compute test scores in the context of linear regression
+    Args:
+        y:      shape=(N,) the correct labels
+        x:      shape=(N, D) the model inputs
+        w:      shape=(D,) the optimal weights found through linear regression
+    
+    Returns:
+        scores: dict, keys are score names (f1, accuracy, loss), values are the values of said scores 
+    """
+    preds = (x @ w > treshold).astype(int)
     f1 = compute_f1_score(y, preds)
     accuracy = (preds == y).mean()
     loss = loss_mse(y, x, w)
