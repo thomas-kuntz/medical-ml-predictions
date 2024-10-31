@@ -106,7 +106,7 @@ def cross_validation(y, x, kind, k_indices, fold_nums, verbose=False, **kwargs):
     if kind not in ['logistic', 'linear', 'least_squares']:
         raise ValueError("Invalid kind, must be one of 'logistic', 'linear', or 'least_squares'.")
     if verbose:
-        print("\nCross validating for {:20s}.\t".format(kind) + "\t".join([f"{k}={v}" for k, v in kwargs.items() if k not in ['initial_w', 'max_its']]))
+        print("\nCross validating for {:20s}".format(kind) + "\t".join([f"{k}={v}" for k, v in kwargs.items() if k not in ['initial_w', 'max_its']]))
     if kind == 'least_squares':
         max_its = [0]
     else:
