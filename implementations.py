@@ -92,7 +92,7 @@ def ridge_regression(y, tx, lambda_):
     n, d = tx.shape
     w = np.linalg.solve(tx.T @ tx + 2 * n * lambda_ * np.identity(d), tx.T @ y)
 
-    return w, loss_mse(y, tx, w)  # TODO check ed mse vs rmse
+    return w, loss_mse(y, tx, w)
 
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):

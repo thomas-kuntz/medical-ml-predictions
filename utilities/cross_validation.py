@@ -106,7 +106,7 @@ def cross_validation(y, x, kind, k_indices, fold_nums, verbose=False, **kwargs):
     if kind not in ['logistic', 'linear', 'least_squares']:
         raise ValueError("Invalid kind, must be one of 'logistic', 'linear', or 'least_squares'.")
     if verbose:
-        print("\nCross validating for {:20s}".format(kind) + "\t".join([f"{k}={v}" for k, v in kwargs.items() if k not in ['initial_w', 'max_its']]))
+        print("\nCross validating with\t" + "\t".join([f"{k}={v}" for k, v in kwargs.items() if k not in ['initial_w', 'max_its']]))
     if kind == 'least_squares':
         max_its = [0]
     else:
@@ -142,7 +142,7 @@ def cross_validation(y, x, kind, k_indices, fold_nums, verbose=False, **kwargs):
 
 
 def cross_validation_for_parameter_selection(y, x, kind, fold_nums, verbose=False, **kwargs):
-    """Perform cross validation for regularized logistic regression.
+    """Perform cross validation to select the best parameters for a model.
     Args:
         y:          shape=(N,)
         x:          shape=(N,D)
@@ -273,17 +273,39 @@ def cross_validation_for_parameter_selection(y, x, kind, fold_nums, verbose=Fals
     return best_f1, best_hps, all_scores
 
 def cross_validation_for_model_selection(y, x, fold_nums, models, verbose=False):
-    # TODO proper docs
+    """Perform cross validation to select the best model
+    Args:
+        y:          shape=(N,)
+        x:          shape=(N,D)
+        fold_nums:  int, number of folds to perform
+        models:     list of dicts, expected keys are the following:
+                        name:       string, name of the model, must be unique
+                        kind:       string, one of 'logistic', 'linear', 'least_squares'
+                        parameters: dict, hyperparameters for the model, see `cross_validation_for_parameter_selection`
+        verbose:    bool, whether to print progress reports or not 
+
+
+    Returns:
+        best_model:         string, name of the best model
+        scores_by_model:    dictionary of tuples, keys are model names, values are tuples (the output of `cross_validation_for_parameter_selection`
+    """
     scores_by_model = {}
     overall_best_f1 = 0
     best_model = None
     for model in models:
         if verbose:
+            print("\n\n")
+            print("====================================================================================")
             print(f"Performing cross validation for {model['name']}")
-        best_f1, best_hps, all_scores = cross_validation_for_parameter_selection(y, x, kind=model['kind'], fold_nums=fold_nums, verbose=verbose, **model['parameters'])
+            print("====================================================================================")
+        try:
+            best_f1, best_hps, all_scores = cross_validation_for_parameter_selection(y, x, kind=model['kind'], fold_nums=fold_nums, verbose=verbose, **model['parameters'])
+        except np.linalg.LinAlgError:
+            if verbose:
+                print("Model {} failed with `numpy.LinAlgError`, no scores have been recorded.".format(model['name']))
+            continue
         scores_by_model[model['name']] = (best_f1, best_hps, all_scores)
-
         if best_f1 > overall_best_f1:
             overall_best_f1 = best_f1
             best_model = model['name']
-    return overall_best_f1, best_model, scores_by_model
+    return best_model, scores_by_model
